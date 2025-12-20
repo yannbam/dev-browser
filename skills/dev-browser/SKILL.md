@@ -40,7 +40,7 @@ The server script accepts the following flags:
 
 The first run may take longer while dependencies are installed. Subsequent runs will start faster.
 
-**Important:** Scripts must be run with `bun x tsx` (not `bun run`) due to Playwright WebSocket compatibility.
+**Important:** Scripts must be run with `npx tsx` (or `bun x tsx` if bun works on your system). The server.sh script auto-detects which runtime to use.
 
 The server starts a Chromium browser with a REST API for page management (default: `http://localhost:9222`).
 
@@ -64,7 +64,8 @@ Execute scripts inline using heredocs—no need to write files for one-off autom
 > ```
 
 ```bash
-cd skills/dev-browser && bun x tsx <<'EOF'
+# Use npx tsx (or bun x tsx if bun works on your system)
+cd skills/dev-browser && npx tsx <<'EOF'
 import { connect } from "@/client.js";
 const client = await connect();
 const page = await client.page("main");
@@ -84,7 +85,7 @@ EOF
 Use the `@/client.js` import path for all scripts.
 
 ```bash
-cd skills/dev-browser && bun x tsx <<'EOF'
+cd skills/dev-browser && npx tsx <<'EOF'
 import { connect, waitForPageLoad } from "@/client.js";
 
 const client = await connect();
@@ -115,7 +116,7 @@ EOF
 
 ### Important Notes
 
-- **tsx runs without type-checking**: Scripts run with `bun x tsx` which transpiles TypeScript but does NOT type-check. Type errors won't prevent execution—they're just ignored.
+- **tsx runs without type-checking**: Scripts run with `npx tsx` which transpiles TypeScript but does NOT type-check. Type errors won't prevent execution—they're just ignored.
 - **No TypeScript in browser context**: Code passed to `page.evaluate()`, `page.evaluateHandle()`, or similar methods runs in the browser. Use plain JavaScript only:
 
 ```typescript
@@ -195,7 +196,7 @@ Use `getAISnapshot()` when you don't know the page layout and need to discover w
 - **Stable refs** that persist across script executions
 
 ```bash
-cd skills/dev-browser && bun x tsx <<'EOF'
+cd skills/dev-browser && npx tsx <<'EOF'
 import { connect, waitForPageLoad } from "@/client.js";
 
 const client = await connect();
@@ -254,7 +255,7 @@ The snapshot is YAML-formatted with semantic structure:
 Use `selectSnapshotRef()` to get a Playwright ElementHandle for any ref:
 
 ```bash
-cd skills/dev-browser && bun x tsx <<'EOF'
+cd skills/dev-browser && npx tsx <<'EOF'
 import { connect, waitForPageLoad } from "@/client.js";
 
 const client = await connect();
@@ -295,7 +296,7 @@ If a script fails, the page state is preserved. You can:
 3. Write a recovery script to get back on track
 
 ```bash
-cd skills/dev-browser && bun x tsx <<'EOF'
+cd skills/dev-browser && npx tsx <<'EOF'
 import { connect } from "@/client.js";
 
 const client = await connect();
