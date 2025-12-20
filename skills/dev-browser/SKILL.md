@@ -23,7 +23,7 @@ First, start the dev-browser server using the startup script:
 ./skills/dev-browser/server.sh &
 ```
 
-The script will automatically install dependencies and start the server. It will also install Chromium on first run if needed.
+The script will automatically install dependencies and start the server. It will also install Chrome (via Patchright) on first run if needed.
 
 ### Flags
 
@@ -34,7 +34,7 @@ The server script accepts the following flags:
 **Wait for the `Ready` message before running scripts.** On first run, the server will:
 
 - Install dependencies if needed
-- Download and install Playwright Chromium browser
+- Download and install Chrome browser via Patchright (undetected Playwright fork)
 - Create the `tmp/` directory for scripts
 - Create the `profiles/` directory for browser data persistence
 
@@ -42,11 +42,21 @@ The first run may take longer while dependencies are installed. Subsequent runs 
 
 **Important:** Scripts must be run with `npx tsx` (or `bun x tsx` if bun works on your system). The server.sh script auto-detects which runtime to use.
 
-The server starts a Chromium browser with a REST API for page management (default: `http://localhost:9222`).
+The server starts a Chrome browser with a REST API for page management (default: `http://localhost:9222`).
+
+## Stealth Mode
+
+dev-browser uses **Patchright**, an undetected fork of Playwright that bypasses bot detection systems including Cloudflare, Datadome, Kasada, and more. This makes it ideal for automating sites that block typical automation tools.
+
+Key stealth features:
+- Uses real Chrome instead of Chromium (harder to fingerprint)
+- Patches CDP leaks that bots typically exploit to detect automation
+- Removes automation flags like `navigator.webdriver`
+- Natural viewport and browser behavior
 
 ## How It Works
 
-1. **Server** launches a persistent Chromium browser and manages named pages via REST API
+1. **Server** launches a persistent Chrome browser and manages named pages via REST API
 2. **Client** connects to the HTTP server URL and requests pages by name
 3. **Pages persist** - the server owns all page contexts, so they survive client disconnections
 4. **State is preserved** - cookies, localStorage, DOM state all persist between runs
@@ -156,7 +166,7 @@ const snapshot = await client.getAISnapshot("name"); // Get ARIA accessibility t
 const element = await client.selectSnapshotRef("name", "e5"); // Get element by ref
 ```
 
-The `page` object is a standard Playwright Page—use normal Playwright methods.
+The `page` object is a standard Patchright/Playwright Page—use normal Playwright methods.
 
 ## Waiting
 

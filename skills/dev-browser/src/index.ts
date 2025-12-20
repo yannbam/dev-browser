@@ -1,5 +1,5 @@
 import express, { type Express, type Request, type Response } from "express";
-import { chromium, type BrowserContext, type Page } from "playwright";
+import { chromium, type BrowserContext, type Page } from "patchright";
 import { mkdirSync } from "fs";
 import { join } from "path";
 import type { Socket } from "net";
@@ -80,8 +80,14 @@ export async function serve(options: ServeOptions = {}): Promise<DevBrowserServe
   console.log("Launching browser with persistent context...");
 
   // Launch persistent context - this persists cookies, localStorage, cache, etc.
+  // Patchright best practices for maximum undetectability:
+  // - channel: "chrome" uses real Chrome instead of Chromium (harder to detect)
+  // - viewport: null uses browser's natural viewport (avoids fingerprinting)
+  // - No custom userAgent or headers (avoids detection vectors)
   const context: BrowserContext = await chromium.launchPersistentContext(userDataDir, {
+    channel: "chrome",
     headless,
+    viewport: null,
     args: [`--remote-debugging-port=${cdpPort}`],
   });
   console.log("Browser launched with persistent profile...");

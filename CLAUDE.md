@@ -41,11 +41,13 @@ Common TypeScript issues in this codebase:
 
 This is a browser automation tool designed for developers and AI agents. It solves the problem of maintaining browser state across multiple script executions - unlike Playwright scripts that start fresh each time, dev-browser keeps pages alive and reusable.
 
+**Stealth Mode**: Uses [Patchright](https://github.com/Kaliiiiiiiiii-Vinyzu/patchright), an undetected Playwright fork that bypasses bot detection (Cloudflare, Datadome, Kasada, etc.).
+
 ### Structure
 
 All source code lives in `skills/dev-browser/`:
 
-- `src/index.ts` - Server: launches persistent Chromium context, exposes HTTP API for page management
+- `src/index.ts` - Server: launches persistent Chrome context via Patchright, exposes HTTP API for page management
 - `src/client.ts` - Client: connects to server, retrieves pages by name via CDP
 - `src/types.ts` - Shared TypeScript types for API requests/responses
 - `src/dom/` - DOM tree extraction utilities for LLM-friendly page inspection
@@ -67,7 +69,8 @@ import { serve } from "@/index.js";
 ### How It Works
 
 1. **Server** (`serve()` in `src/index.ts`):
-   - Launches Chromium with `launchPersistentContext` (preserves cookies, localStorage)
+   - Launches Chrome with `launchPersistentContext` via Patchright (preserves cookies, localStorage)
+   - Uses `channel: "chrome"` and `viewport: null` for maximum undetectability
    - Exposes HTTP API on port 9222 for page management
    - Exposes CDP WebSocket endpoint on port 9223
    - Pages are registered by name and persist until explicitly closed
@@ -75,7 +78,7 @@ import { serve } from "@/index.js";
 2. **Client** (`connect()` in `src/client.ts`):
    - Connects to server's HTTP API
    - Uses CDP `targetId` to reliably find pages across reconnections
-   - Returns standard Playwright `Page` objects for automation
+   - Returns standard Patchright `Page` objects for automation (Playwright-compatible API)
 
 3. **Key API Endpoints**:
    - `GET /` - Returns CDP WebSocket endpoint

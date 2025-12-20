@@ -14,14 +14,15 @@ mkdirSync(tmpDir, { recursive: true });
 console.log("Creating profiles directory...");
 mkdirSync(profileDir, { recursive: true });
 
-// Install Playwright browsers if not already installed
-console.log("Checking Playwright browser installation...");
+// Install Patchright Chrome browser if not already installed
+// Using Chrome (not Chromium) for maximum undetectability
+console.log("Checking Patchright browser installation...");
 
 function findPackageManager(): { name: string; command: string } | null {
   const managers = [
-    { name: "bun", command: "bunx playwright install chromium" },
-    { name: "pnpm", command: "pnpm exec playwright install chromium" },
-    { name: "npm", command: "npx playwright install chromium" },
+    { name: "bun", command: "bunx patchright install chrome" },
+    { name: "pnpm", command: "pnpm exec patchright install chrome" },
+    { name: "npm", command: "npx patchright install chrome" },
   ];
 
   for (const manager of managers) {
@@ -35,41 +36,42 @@ function findPackageManager(): { name: string; command: string } | null {
   return null;
 }
 
-function isChromiumInstalled(): boolean {
+function isChromeInstalled(): boolean {
   const homeDir = process.env.HOME || process.env.USERPROFILE || "";
-  const playwrightCacheDir = join(homeDir, ".cache", "ms-playwright");
+  const patchrightCacheDir = join(homeDir, ".cache", "ms-playwright");
 
-  if (!existsSync(playwrightCacheDir)) {
+  if (!existsSync(patchrightCacheDir)) {
     return false;
   }
 
-  // Check for chromium directories (e.g., chromium-1148, chromium_headless_shell-1148)
+  // Check for chrome directories (e.g., chrome-1148)
+  // Patchright uses the same cache location as Playwright
   try {
-    const entries = readdirSync(playwrightCacheDir);
-    return entries.some((entry) => entry.startsWith("chromium"));
+    const entries = readdirSync(patchrightCacheDir);
+    return entries.some((entry) => entry.startsWith("chrome"));
   } catch {
     return false;
   }
 }
 
 try {
-  if (!isChromiumInstalled()) {
-    console.log("Playwright Chromium not found. Installing (this may take a minute)...");
+  if (!isChromeInstalled()) {
+    console.log("Patchright Chrome not found. Installing (this may take a minute)...");
 
     const pm = findPackageManager();
     if (!pm) {
       throw new Error("No package manager found (tried bun, pnpm, npm)");
     }
 
-    console.log(`Using ${pm.name} to install Playwright...`);
+    console.log(`Using ${pm.name} to install Patchright Chrome...`);
     execSync(pm.command, { stdio: "inherit" });
-    console.log("Chromium installed successfully.");
+    console.log("Chrome installed successfully.");
   } else {
-    console.log("Playwright Chromium already installed.");
+    console.log("Patchright Chrome already installed.");
   }
 } catch (error) {
-  console.error("Failed to install Playwright browsers:", error);
-  console.log("You may need to run: npx playwright install chromium");
+  console.error("Failed to install Patchright browser:", error);
+  console.log("You may need to run: npx patchright install chrome");
 }
 
 // Check if server is already running

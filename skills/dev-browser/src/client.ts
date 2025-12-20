@@ -1,4 +1,4 @@
-import { chromium, type Browser, type Page, type ElementHandle } from "playwright";
+import { chromium, type Browser, type Page, type ElementHandle } from "patchright";
 import type {
   GetPageRequest,
   GetPageResponse,
