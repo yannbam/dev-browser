@@ -20,17 +20,18 @@ console.log("Checking Patchright browser installation...");
 
 function findPackageManager(): { name: string; command: string } | null {
   const managers = [
-    { name: "bun", command: "bunx patchright install chrome" },
-    { name: "pnpm", command: "pnpm exec patchright install chrome" },
-    { name: "npm", command: "npx patchright install chrome" },
+    { name: "bun", test: "bun --version", command: "bunx patchright install chrome" },
+    { name: "pnpm", test: "pnpm --version", command: "pnpm exec patchright install chrome" },
+    { name: "npm", test: "npm --version", command: "npx patchright install chrome" },
   ];
 
   for (const manager of managers) {
     try {
-      execSync(`which ${manager.name}`, { stdio: "ignore" });
-      return manager;
+      // Actually test if the package manager works, not just if it exists
+      execSync(manager.test, { stdio: "ignore" });
+      return { name: manager.name, command: manager.command };
     } catch {
-      // Package manager not found, try next
+      // Package manager not working, try next
     }
   }
   return null;
